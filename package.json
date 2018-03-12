@@ -14,7 +14,7 @@
 },
   "private": true,
   "devDependencies": {
-    "concurrently": "2.2.0",
+    "concurrently": "2.2.0"
     
   }
 }
