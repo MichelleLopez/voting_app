@@ -13,5 +13,9 @@
   "devDependencies": {
     "concurrently": "2.2.0",
     "live-server": "https://github.com/acco/live-server/tarball/master"
+  },
+  "engines": {
+    "node": "8.9.4",
+    "npm": "5.6.0"
   }
 }
