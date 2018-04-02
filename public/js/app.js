@@ -1,24 +1,48 @@
 class ProductList extends React.Component {
-  state = {
-    products: [],
-  };
+  constructor(props) {     
+    super(props);     
+      this.state = {       
+        products: [],       
+        newproduct: {}     
+      };      
+      this.handleInputChange = this.handleInputChange.bind(this);   
+      this.refreshList = this.refreshList.bind(this);   
+      this.handleClick = this.handleClick.bind(this);   
+  }
+
+  handleClick(event){
+    const header = {
+      'Content-Type' : 'application/json'
+    }
+    const body = {product: this.state.newproduct}
+    body.product['num_votes'] = 0
+    console.log(JSON.stringify(body))
+    fetch(`http://localhost:3000/products`, {method: 'POST', header: header, body: JSON.stringify(body)})
+        .then((response) => this.refreshList())
+  }
+
+  handleInputChange(event) {
+    const value = event.target.value
+    const name = event.target.name
+    this.state.newproduct[name]=value
+  }
+
+  refreshList(){
+    fetch(`http://localhost:3000/products`)
+        .then((response) => response.json())
+        .then((json) => this.setState({products: json}))
+  }
 
   componentDidMount() {
-    this.setState({ products: Seed.products });
+    this.refreshList();
   }
-  handleProductUpVote = (productId) => {
-    const nextProducts = this.state.products.map((product) => {
-      if (product.id === productId) {
-        return Object.assign({}, product, {
-          votes: product.votes + 1,
-        });
-      } else {
-        return product;
-      }
-    });
 
-    this.setState({
-      products: nextProducts,
+  handleProductUpVote = (productId) => {
+    this.state.products.forEach((product, index) => {
+      if(product.id === productId){
+        fetch(`http://localhost:3000/products/${productId}/upvote`, {method: 'POST'})
+        .then((response) => this.refreshList())
+      }
     });
   }
 
@@ -32,8 +56,8 @@ class ProductList extends React.Component {
           id={product.id}
           title={product.title}
           description={product.description}
-          url={product.url}
-          votes={product.votes}
+          url={product.image}
+          votes={product.num_votes}
           submitterAvatarUrl={product.submitterAvatarUrl}
           productImageUrl={product.productImageUrl}
           onVote={this.handleProductUpVote}
@@ -42,6 +66,13 @@ class ProductList extends React.Component {
     return (
       <div className='ui unstackable items'>
       {productComponents}
+      title
+      <input name="title" value={this.state.newproduct.title} onChange={this.handleInputChange}/>
+      description
+      <input name="description" value={this.state.newproduct.description} onChange={this.handleInputChange}/>
+      image
+      <input name="image" value={this.state.newproduct.image} onChange={this.handleInputChange}/>
+      <button onClick={this.handleClick}>Submit</button>
       </div>
       );
   }
